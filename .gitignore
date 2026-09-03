@@ -1,0 +1,15 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+.pytest_cache/
+.DS_Store
+Thumbs.db
+
+# Learner data — never commit someone's exported conversations
+data/*.json
+data/*.jsonl
+!data/example*.json
+out/

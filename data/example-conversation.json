@@ -1,0 +1,42 @@
+[
+  {
+    "role": "user",
+    "content": "I need to parse a CSV of transactions and flag duplicates. What's the cleanest approach?"
+  },
+  {
+    "role": "assistant",
+    "content": "Use pandas. Read the file, then use duplicated() on the columns that define identity:\n\n```python\nimport pandas as pd\ndf = pd.read_csv('transactions.csv')\ndupes = df[df.duplicated(subset=['date','amount','merchant'], keep=False)]\n```\n\nThat flags every row taking part in a duplicate group rather than just the repeats."
+  },
+  {
+    "role": "user",
+    "content": "The amounts are strings like '€1.234,56'. Does that break it?"
+  },
+  {
+    "role": "assistant",
+    "content": "Yes — as strings, '€1.234,56' and '€1234.56' are different values even though they're the same amount. Normalise first:\n\n```python\ndf['amount'] = (df['amount']\n    .str.replace('€','', regex=False)\n    .str.replace('.','', regex=False)\n    .str.replace(',','.', regex=False)\n    .astype(float))\n```\n\nOrder matters: strip thousands separators before converting the decimal comma."
+  },
+  {
+    "role": "user",
+    "content": "Now I need this for 40 files with slightly different column names."
+  },
+  {
+    "role": "assistant",
+    "content": "Build a column mapping per file rather than special-casing each one:\n\n```python\nCOLUMN_MAP = {\n    'transaction_date': 'date',\n    'txn_date': 'date',\n    'value': 'amount',\n    'total': 'amount',\n}\ndf = df.rename(columns=COLUMN_MAP)\n```\n\nThen assert the expected columns exist after renaming, so a new variant fails loudly instead of silently producing an empty result."
+  },
+  {
+    "role": "user",
+    "content": "Some files have a footer row with totals. It's being counted as a transaction."
+  },
+  {
+    "role": "assistant",
+    "content": "Filter it before the duplicate check. A totals row usually has a null in a field every real row has:\n\n```python\ndf = df[df['merchant'].notna()]\n```\n\nDon't drop by row position — footers move when a file gains a row."
+  },
+  {
+    "role": "user",
+    "content": "Going back to the duplicate detection — should I use date+amount+merchant, or add a transaction ID?"
+  },
+  {
+    "role": "assistant",
+    "content": "If a transaction ID exists and is genuinely unique per transaction, use it alone; it's the strongest signal. Use the composite key only where no ID exists. Careful: some exports reuse IDs across files, so check uniqueness across the whole concatenated set rather than per file."
+  }
+]
