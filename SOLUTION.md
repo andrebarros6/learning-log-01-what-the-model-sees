@@ -32,16 +32,3 @@
 >
 > The last one is the most interesting if they disagree. Write what actually
 > happened, including if the answer is boring.
-
-## What broke while building this
-
-> **[TO WRITE.]**
->
-> Real problems only. Some candidates, if they genuinely happened:
-> export format didn't match any branch of `load_transcript`; the per-turn
-> API calls were slower than expected on a long conversation; the estimate
-> was closer than expected and the lesson was less dramatic than the issue
-> claims.
->
-> If nothing broke, say that — and treat it as a signal the exercise was too
-> small, per the curriculum's own gate.
