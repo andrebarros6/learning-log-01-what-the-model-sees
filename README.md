@@ -52,10 +52,14 @@ python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\act
 pip install -r requirements.txt
 ```
 
+**In VS Code:** open the folder, then run *Python: Select Interpreter* from the command palette and pick the one inside `.venv`. With more than one Python installed it's easy to land on the global one, and then nothing you just installed is there.
+
 You'll need an API key:
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...     # Windows: set ANTHROPIC_API_KEY=...
+export ANTHROPIC_API_KEY=sk-ant-...        # macOS / Linux
+$env:ANTHROPIC_API_KEY = "sk-ant-..."      # Windows PowerShell (VS Code's default terminal)
+set ANTHROPIC_API_KEY=sk-ant-...           # Windows cmd
 ```
 
 Never commit your key. `.env` is gitignored.
@@ -91,7 +95,9 @@ The guess vs the number
 pytest
 ```
 
-Ten tests covering transcript parsing and the cumulative-counting logic. They use a fake client, so they run without an API key and without spending anything — you shouldn't have to pay to know your parsing works.
+Run them this way, or from VS Code's Testing panel. Pressing ▶ *Run Python File* on the test file won't work: that runs it as a plain script, and the tests can't find the code they're testing.
+
+Eleven tests covering transcript parsing and the cumulative-counting logic. They use a fake client, so they run without an API key and without spending anything — you shouldn't have to pay to know your parsing works.
 
 That split is itself part of the lesson: test what you can test cheaply, and don't skip testing something because part of the system is remote.
 
@@ -113,7 +119,7 @@ Export it and point the script at it:
 python -m src.main path/to/your-export.json
 ```
 
-`load_transcript` handles a few common export shapes: a plain list of messages, `{"messages": [...]}`, and JSONL. Exports change without warning, so if yours isn't handled, add a branch — that's a legitimate part of the exercise, not a detour from it.
+`load_transcript` handles a few common export shapes: a plain list of messages, `{"messages": [...]}`, JSONL, and Claude Code session transcripts (the `.jsonl` files under `~/.claude/projects/`). A Claude Code session is worth trying: most of what the model saw in it, you never typed. Exports change without warning, so if yours isn't handled, add a branch — that's a legitimate part of the exercise, not a detour from it.
 
 Your own exports are gitignored by default. Don't commit your conversations to a public repo.
 
