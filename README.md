@@ -2,6 +2,8 @@
 
 **Issue 1 of 30 · Working with the models** · [Read the issue](https://barrosbuilds.com/log) · [All exercises](https://github.com/andrebarros6/learning-log)
 
+**Kind:** script · **Needs:** Python 3.10+, git, an Anthropic API key (separate from a Claude subscription) · **Cost:** free — token counting and model lookup aren't billed
+
 Measure what a conversation actually costs to send, and find out how wrong your mental estimate was.
 
 ---
@@ -23,6 +25,8 @@ So long conversations fail two different ways that look identical from outside. 
 Once you see it this way the usual fixes stop being folklore. A fresh conversation works because you're rebuilding context deliberately. Restating constraints works because you moved them from turn three to turn forty-one.
 
 ## What you'll do
+
+This one is a script you run in a terminal, against the API. That's not a preference: the chat window never shows you a token count, and the API is the only place the real number exists. Not every exercise is like this — about half happen inside Claude or Claude Code.
 
 1. **Count a conversation properly** — real token counts from the API, per turn, not a character heuristic.
 2. **Watch the cost grow** — cumulative tokens per turn. The shape is the point: it climbs faster than you'd guess, because every turn resends everything before it.
@@ -48,10 +52,14 @@ python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\act
 pip install -r requirements.txt
 ```
 
+**In VS Code:** open the folder, then run *Python: Select Interpreter* from the command palette and pick the one inside `.venv`. With more than one Python installed it's easy to land on the global one, and then nothing you just installed is there.
+
 You'll need an API key:
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...     # Windows: set ANTHROPIC_API_KEY=...
+export ANTHROPIC_API_KEY=sk-ant-...        # macOS / Linux
+$env:ANTHROPIC_API_KEY = "sk-ant-..."      # Windows PowerShell (VS Code's default terminal)
+set ANTHROPIC_API_KEY=sk-ant-...           # Windows cmd
 ```
 
 Never commit your key. `.env` is gitignored.
@@ -87,9 +95,19 @@ The guess vs the number
 pytest
 ```
 
-Ten tests covering transcript parsing and the cumulative-counting logic. They use a fake client, so they run without an API key and without spending anything — you shouldn't have to pay to know your parsing works.
+Run them this way, or from VS Code's Testing panel. Pressing ▶ *Run Python File* on the test file won't work: that runs it as a plain script, and the tests can't find the code they're testing.
+
+Eleven tests covering transcript parsing and the cumulative-counting logic. They use a fake client, so they run without an API key and without spending anything — you shouldn't have to pay to know your parsing works.
 
 That split is itself part of the lesson: test what you can test cheaply, and don't skip testing something because part of the system is remote.
+
+## The solution
+
+```bash
+git checkout solution
+```
+
+Try it yourself first.
 
 ## Bring your own conversation
 
@@ -101,17 +119,9 @@ Export it and point the script at it:
 python -m src.main path/to/your-export.json
 ```
 
-`load_transcript` handles a few common export shapes: a plain list of messages, `{"messages": [...]}`, and JSONL. Exports change without warning, so if yours isn't handled, add a branch — that's a legitimate part of the exercise, not a detour from it.
+`load_transcript` handles a few common export shapes: a plain list of messages, `{"messages": [...]}`, JSONL, and Claude Code session transcripts (the `.jsonl` files under `~/.claude/projects/`). A Claude Code session is worth trying: most of what the model saw in it, you never typed. Exports change without warning, so if yours isn't handled, add a branch — that's a legitimate part of the exercise, not a detour from it.
 
 Your own exports are gitignored by default. Don't commit your conversations to a public repo.
-
-## The solution
-
-```bash
-git checkout solution
-```
-
-Try it yourself first.
 
 ---
 
