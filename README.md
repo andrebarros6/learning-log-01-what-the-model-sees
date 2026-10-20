@@ -16,7 +16,7 @@ The chat interface hides this well. It looks like continuity. It isn't. You're r
 
 Two things follow.
 
-**The unit is the token, not the word.** Text is split into tokens before the model sees it — roughly word-sized, but not reliably. Common words are one token; rare words split into several; whitespace, punctuation and code all tokenize differently from prose. The rule of thumb people repeat — four characters per token — was derived from English prose and breaks precisely where you need it, on code, JSON, tables, and non-English text.
+**The unit is the token, not the word.** Text is split into tokens before the model sees it — roughly word-sized, but not reliably. Common words are one token; rare words split into several; whitespace, punctuation and code all tokenize differently from prose. The rule of thumb people repeat — four characters per token — was built for older tokenizers, and only ever for English prose. Tokenizers change between model generations, and the old rule now runs low on plain prose too — lower still on code, JSON, file paths and non-English text.
 
 **The window is a shared budget.** System prompt, full history, pasted documents, and the space reserved for the response all come out of one allowance. It doesn't reset between turns.
 
@@ -30,7 +30,7 @@ This one is a script you run in a terminal, against the API. That's not a prefer
 
 1. **Count a conversation properly** — real token counts from the API, per turn, not a character heuristic.
 2. **Watch the cost grow** — cumulative tokens per turn. The shape is the point: it climbs faster than you'd guess, because every turn resends everything before it.
-3. **Compare the guess to the number** — run `len(text)/4` against the real count and measure the gap. If your conversation has code in it, the gap will be worse than you expect.
+3. **Compare the guess to the number** — run `len(text)/4` against the real count and measure the gap. Expect it to be low everywhere, and worst on code, file paths and JSON.
 4. **Find where it broke** — locate the turn where quality dropped, then look at what was in the window at that moment.
 
 ## When this is not the right tool
@@ -131,7 +131,7 @@ This exercise deliberately doesn't hardcode context window sizes. They change be
 
 `context_window()` asks the API instead. That habit is the durable skill; the current number isn't.
 
-Same reason the code doesn't use `tiktoken`. It's a good library and it's built for a different model family — for Claude it undercounts by roughly 15–20% on typical text, and considerably more on code. A plausible number that quietly disagrees with what you're actually billed is worse than no number.
+Same reason the code doesn't use `tiktoken`. It's a good library, but it's built for a different model family's tokenizer, so its counts for Claude are off by an amount you can't know without asking the API. A plausible number that quietly disagrees with what you're actually billed is worse than no number.
 
 ## Questions, corrections, things that broke
 
