@@ -76,6 +76,19 @@ def test_handles_content_blocks(tmp_path):
     assert turns[0].content == "one", "non-text blocks should be ignored, not crash"
 
 
+def test_loads_claude_code_transcript(tmp_path):
+    """Claude Code nests each message under "message", alongside bookkeeping records."""
+    p = tmp_path / "c.jsonl"
+    lines = [
+        {"type": "file-history-snapshot", "snapshot": {}},
+        {"type": "user", "message": {"role": "user", "content": [{"type": "text", "text": "hi"}]}},
+        {"type": "assistant", "message": {"role": "assistant", "content": "hello"}},
+    ]
+    p.write_text("\n".join(json.dumps(line) for line in lines), encoding="utf-8")
+    turns = load_transcript(p)
+    assert [(t.role, t.content) for t in turns] == [("user", "hi"), ("assistant", "hello")]
+
+
 def test_drops_empty_messages(tmp_path):
     p = tmp_path / "c.json"
     p.write_text(

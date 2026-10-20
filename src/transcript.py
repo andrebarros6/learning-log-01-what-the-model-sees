@@ -54,6 +54,7 @@ def load_transcript(path: str | Path) -> list[Turn]:
       - a JSON list of {role, content}
       - {"messages": [...]}  or  {"conversation": [...]}
       - JSONL, one message per line
+      - Claude Code transcripts, where each message is nested under "message"
 
     Empty messages are dropped: they add nothing and distort the chart.
     """
@@ -78,6 +79,9 @@ def load_transcript(path: str | Path) -> list[Turn]:
     for record in records:
         if not isinstance(record, dict):
             continue
+        # Claude Code transcripts wrap each message: {"type": ..., "message": {role, content}}
+        if isinstance(record.get("message"), dict):
+            record = record["message"]
         text = _extract_text(record.get("content", record.get("text", "")))
         if not text.strip():
             continue
