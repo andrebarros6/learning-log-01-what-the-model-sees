@@ -59,7 +59,10 @@ def test_loads_wrapped_messages(tmp_path):
 
 def test_loads_jsonl(tmp_path):
     p = tmp_path / "c.jsonl"
-    p.write_text('{"role":"user","content":"a"}\n{"role":"assistant","content":"b"}\n', encoding="utf-8")
+    p.write_text(
+        '{"role":"user","content":"a"}\n{"role":"assistant","content":"b"}\n',
+        encoding="utf-8",
+    )
     assert len(load_transcript(p)) == 2
 
 

@@ -11,8 +11,10 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from typing import cast
 
 import anthropic
+from anthropic.types import MessageParam
 
 # The model whose tokenizer we're measuring against. Token counts are
 # model-specific — a count for one model family is not a count for another,
@@ -56,7 +58,11 @@ def count_tokens(
     cheap and fast. There is no reason to guess when this exists.
     """
     client = client or anthropic.Anthropic()
-    result = client.messages.count_tokens(model=model, messages=messages)
+    # Turn.to_message() builds plain {"role", "content"} dicts — the shape
+    # MessageParam describes. The cast says so to the type checker.
+    result = client.messages.count_tokens(
+        model=model, messages=cast("list[MessageParam]", messages)
+    )
     return result.input_tokens
 
 
